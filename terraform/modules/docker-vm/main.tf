@@ -1,8 +1,7 @@
-variable "name" {}
-variable "tags" {
-  type = list(string)
+resource "google_service_account" "vm_sa" {
+  account_id   = "${var.name}-sa"
+  display_name = "Service Account for ${var.name}"
 }
-variable "ssh_public_key" {}
 
 resource "google_compute_instance" "vm" {
   name         = var.name
@@ -28,5 +27,23 @@ resource "google_compute_instance" "vm" {
     ssh-keys       = "ubuntu:${var.ssh_public_key}"
   }
 
-  metadata_startup_script = file("${path.module}/startup.sh")
+  service_account {
+    email  = google_service_account.vm_sa.email
+    scopes = ["cloud-platform"]
+  }
+
+  metadata_startup_script = <<-EOT
+    #!/bin/bash
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
+    apt-get update -y
+    apt-get install -y apt-transport-https ca-certificates curl software-properties-common docker.io docker-compose
+
+    systemctl enable docker
+    systemctl start docker
+  EOT
 }
