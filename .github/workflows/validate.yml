@@ -1,0 +1,51 @@
+name: Terraform Lint & Validate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'terraform/**'
+  pull_request:
+    paths:
+      - 'terraform/**'
+
+jobs:
+  lint-and-validate:
+    name: TFLint & Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Lint nonprod
+        run: |
+          cd terraform/envs/nonprod
+          tflint --recursive
+
+      - name: Lint prod
+        run: |
+          cd terraform/envs/prod
+          tflint --recursive
+
+      - name: Validate nonprod
+        run: |
+          cd terraform/envs/nonprod
+          terraform init -backend=false
+          terraform validate
+
+      - name: Validate prod
+        run: |
+          cd terraform/envs/prod
+          terraform init -backend=false
+          terraform validate
