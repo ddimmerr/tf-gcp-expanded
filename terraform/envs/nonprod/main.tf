@@ -32,19 +32,6 @@ module "nonprod_vm" {
   ssh_public_key = var.ssh_public_key
 }
 
-resource "google_artifact_registry_repository" "app_repo" {
-  location      = "us-central1"
-  repository_id = "app-repo"
-  format        = "DOCKER"
-}
-
-resource "google_artifact_registry_repository_iam_member" "nonprod_vm_reader" {
-  location   = google_artifact_registry_repository.app_repo.location
-  repository = google_artifact_registry_repository.app_repo.name
-  role       = "roles/artifactregistry.reader"
-  member     = "serviceAccount:${module.nonprod_vm.service_account_email}"
-}
-
 output "nonprod_ip" {
   value = module.nonprod_vm.public_ip
 }
