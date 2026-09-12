@@ -1,24 +1,29 @@
+availableSecrets:
+  secretManager:
+    - versionName: projects/gcp-tf-508315/secrets/ssh-public-key/versions/latest
+      env: 'SSH_PUBLIC_KEY'
+
 steps:
   - name: 'hashicorp/terraform:1.7.0'
     entrypoint: 'sh'
-    args: 
+    secretEnv: ['SSH_PUBLIC_KEY']
+    args:
       - '-c'
       - |
-        # Navigate into the subfolder containing your .tf files
-        cd terraform
-        
-        echo "Initializing Terraform..."
+        cd terraform/envs/${_ENV}
+
+        echo "Initializing Terraform for ${_ENV}..."
         terraform init
-        
+
         if [ "${_TF_ACTION}" = "plan" ]; then
-          echo "Executing Terraform Plan..."
-          terraform plan
+          echo "Executing Terraform Plan for ${_ENV}..."
+          terraform plan -var="ssh_public_key=$$SSH_PUBLIC_KEY"
         elif [ "${_TF_ACTION}" = "apply" ]; then
-          echo "Executing Terraform Apply..."
-          terraform apply -auto-approve
+          echo "Executing Terraform Apply for ${_ENV}..."
+          terraform apply -auto-approve -var="ssh_public_key=$$SSH_PUBLIC_KEY"
         elif [ "${_TF_ACTION}" = "destroy" ]; then
-          echo "WARNING: Executing Terraform Destroy..."
-          terraform destroy -auto-approve
+          echo "WARNING: Executing Terraform Destroy for ${_ENV}..."
+          terraform destroy -auto-approve -var="ssh_public_key=$$SSH_PUBLIC_KEY"
         else
           echo "Error: Invalid action '${_TF_ACTION}'. Choose plan, apply, or destroy."
           exit 1
@@ -26,6 +31,7 @@ steps:
 
 substitutions:
   _TF_ACTION: 'plan'
+  _ENV: 'nonprod'
 
 options:
   logging: CLOUD_LOGGING_ONLY

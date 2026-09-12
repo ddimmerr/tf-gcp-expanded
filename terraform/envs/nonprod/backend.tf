@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
     bucket = "tf-bucket-storage"
-    prefix = "terraform/state"
+    prefix = "docker-hosts/nonprod"
   }
 }
