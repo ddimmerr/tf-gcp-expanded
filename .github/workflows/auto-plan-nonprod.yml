@@ -31,6 +31,6 @@ jobs:
 
       - name: Terraform Init & Plan
         run: |
-          cd terraform
+          cd terraform/envs/nonprod
           terraform init
           terraform plan -var="project_id=${{ env.GCP_PROJECT_ID }}"
