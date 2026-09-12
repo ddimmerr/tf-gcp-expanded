@@ -1,0 +1,25 @@
+{
+  "name": "tf-gcp-example-app",
+  "version": "1.0.0",
+  "description": "Containerized multi-environment application for GCP deployment",
+  "main": "app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "docker",
+    "gcp"
+  ],
+  "author": "ddimmerr",
+  "license": "none",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

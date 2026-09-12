@@ -1,0 +1,31 @@
+steps:
+  - name: 'hashicorp/terraform:1.7.0'
+    entrypoint: 'sh'
+    args: 
+      - '-c'
+      - |
+        # Navigate into the subfolder containing your .tf files
+        cd terraform
+        
+        echo "Initializing Terraform..."
+        terraform init
+        
+        if [ "${_TF_ACTION}" = "plan" ]; then
+          echo "Executing Terraform Plan..."
+          terraform plan
+        elif [ "${_TF_ACTION}" = "apply" ]; then
+          echo "Executing Terraform Apply..."
+          terraform apply -auto-approve
+        elif [ "${_TF_ACTION}" = "destroy" ]; then
+          echo "WARNING: Executing Terraform Destroy..."
+          terraform destroy -auto-approve
+        else
+          echo "Error: Invalid action '${_TF_ACTION}'. Choose plan, apply, or destroy."
+          exit 1
+        fi
+
+substitutions:
+  _TF_ACTION: 'plan'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
